@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -31,12 +30,5 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true)
     private Set<Movie> movies = new HashSet<>();
-
-    public void addMovie(Movie movie) {
-        if (Objects.nonNull(movie)) {
-            movie.setUser(this);
-            this.movies.add(movie);
-        }
-    }
 }
 

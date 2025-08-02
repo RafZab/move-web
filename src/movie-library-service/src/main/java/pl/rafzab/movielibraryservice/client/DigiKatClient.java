@@ -28,6 +28,15 @@ public class DigiKatClient {
         this.restClient = createRestClient();
     }
 
+    RestClient createRestClient() {
+        return RestClient.builder()
+                .baseUrl(properties.getBaseUrl())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .requestFactory(new SimpleClientHttpRequestFactory())
+                .build();
+    }
+
     public DigiKatMovieData getMovieData(String title) {
         validateTitle(title);
 
@@ -54,15 +63,6 @@ public class DigiKatClient {
         }
     }
 
-    private RestClient createRestClient() {
-        return RestClient.builder()
-                .baseUrl(properties.getBaseUrl())
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                .requestFactory(new SimpleClientHttpRequestFactory())
-                .build();
-    }
-
     private void validateTitle(String title) {
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Movie title cannot be empty");
@@ -71,7 +71,6 @@ public class DigiKatClient {
             throw new IllegalArgumentException("The title of the video cannot exceed 300 characters.");
         }
     }
-
 
     private void handleClientError(HttpRequest request, ClientHttpResponse response) throws IOException {
         log.warn("Customer error 4xx: {} for request: {}", response.getStatusCode(), request.getURI());
