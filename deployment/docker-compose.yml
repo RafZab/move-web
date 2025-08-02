@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    container_name: postgres-db
+    restart: always
+    build:
+      context: ../src/postgres
+      dockerfile: Dockerfile
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - movie-library-network
+
+#  movie-library-service:
+#    container_name: movie-library-service
+#    restart: always
+#    build:
+#      context: ../src/movie-library-service
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      postgres-db:
+#        condition: service_healthy
+#    networks:
+#      - movie-library-network
+#    env_file:
+#      - .env
+
+volumes:
+  db-data: {}
+
+networks:
+  movie-library-network:
+    driver: bridge

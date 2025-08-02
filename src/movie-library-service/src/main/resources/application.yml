@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: movie-library-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/movie_library
+    username: movielibraryservice
+    password: dev
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+  jpa:
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 1100MB
+
+app:
+  upload:
+    directory: C:\REPO\move-web\movie
