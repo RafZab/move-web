@@ -1,6 +1,7 @@
 package pl.rafzab.movielibraryservice.service.movie;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,6 +21,7 @@ import pl.rafzab.movielibraryservice.service.file.FileStorageService;
 
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MovieService {
@@ -31,8 +33,14 @@ public class MovieService {
 
     @Transactional(readOnly=true)
     public MovieListDTO findUserMovies(User user, int page, int limit, MovieFieldSort sortBy, Sort.Direction sortDirection){
+        log.info("Starting movie search for user: {} with parameters page={}, limit={}, sortBy={}, sortDirection={}",
+                user.getUserId(), page, limit, sortBy, sortDirection);
+
         var pageable = PageRequest.of(page, limit, Sort.by(sortDirection, sortBy.getValues()));
         var moviePage = movieRepository.findAllByUser(user, pageable);
+
+        log.debug("Found movie page: currentPage={}, totalItems={}, totalPages={}",
+                moviePage.getNumber(), moviePage.getTotalElements(), moviePage.getTotalPages());
 
         return MovieListDTO.builder()
                 .currentPage(moviePage.getNumber())
@@ -45,6 +53,8 @@ public class MovieService {
 
     @Transactional
     public void saveMovie(User user, MovieModificationDTO requestData){
+        log.info("Starting to save a movie for user: {} with title: {}", user.getUserId(), requestData.title());
+
         var movie = Movie.builder()
                 .user(user)
                 .title(requestData.title())
@@ -52,27 +62,39 @@ public class MovieService {
                 .yearOfProduction(requestData.yearOfProduction())
                 .size(requestData.file().getSize())
                 .build();
+        log.debug("Built movie object: {}", movie);
 
         var movieReadyToSave = uploadAndCalculateRanking(movie, requestData);
+        log.debug("Movie after upload and ranking calculation: {}", movieReadyToSave);
+
         movieRepository.save(movieReadyToSave);
+        log.info("Movie saved successfully for user: {} with title: {}", user.getUserId(), movieReadyToSave.getTitle());
     }
 
     @Transactional
     public void updateMovie(User user, Long movieId, MovieModificationDTO requestData){
+        log.info("Starting update of movie with ID: {} for user: {}", movieId, user.getUserId());
         var movie = getMovieByIdAndUser(movieId, user);
 
         movie.setTitle(requestData.title());
         movie.setDirector(requestData.director());
         movie.setYearOfProduction(requestData.yearOfProduction());
         movie.setSize(requestData.file().getSize());
+        log.debug("Movie details before recalculating ranking: {}", movie);
+
         uploadAndCalculateRanking(movie, requestData);
+        log.debug("Movie after upload and ranking calculation: {}", movie);
 
         movieRepository.save(movie);
+        log.info("Movie with ID: {} updated successfully for user: {}", movieId, user.getUserId());
     }
 
     @Transactional(readOnly=true)
     public Resource downloadMovie(User user, Long movieId){
+        log.info("Starting download of movie with ID: {} for user: {}", movieId, user.getUserId());
         var movie = getMovieByIdAndUser(movieId, user);
+        log.debug("Movie found for download: {}", movie);
+
         return fileStorageService.loadFileByAbsolutePath(movie.getFilePath());
     }
 

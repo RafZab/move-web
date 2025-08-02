@@ -59,4 +59,18 @@ public class Movie {
     public int hashCode() {
         return Objects.hash(movieId, user, title, director, yearOfProduction, ranking, size, filePath);
     }
+
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "movieId=" + movieId +
+                ", user=" + user +
+                ", title='" + title + '\'' +
+                ", director='" + director + '\'' +
+                ", yearOfProduction=" + yearOfProduction +
+                ", ranking=" + ranking +
+                ", size=" + size +
+                ", filePath='" + filePath + '\'' +
+                '}';
+    }
 }
