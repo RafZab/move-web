@@ -94,7 +94,7 @@ public class MovieController {
             summary = "Update an existing movie",
             description = "Updates the details of an existing movie for the logged-in user",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Movie updated successfully"),
+                    @ApiResponse(responseCode = "204", description = "Movie updated successfully"),
                     @ApiResponse(responseCode = "400", description = "Invalid input data"),
                     @ApiResponse(responseCode = "401", description = "User is unauthorized"),
                     @ApiResponse(responseCode = "404", description = "Movie not found")
