@@ -16,5 +16,12 @@ spring:
       max-request-size: 1100MB
 
 app:
+  digikat:
+    base-url: https://digikat.pl
+    connection-timeout-ms: 5000
+    read-timeout-ms: 10000
+    max-retries: 3
+  movie:
+    small-file-size: 209715200
   upload:
     directory: C:\REPO\move-web\movie

@@ -6,6 +6,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.rafzab.movielibraryservice.client.DigiKatClient;
+import pl.rafzab.movielibraryservice.client.DigiKatMovieData;
 import pl.rafzab.movielibraryservice.dto.request.MovieModificationDTO;
 import pl.rafzab.movielibraryservice.dto.response.MovieDTO;
 import pl.rafzab.movielibraryservice.dto.response.MovieListDTO;
@@ -23,6 +25,9 @@ import java.util.stream.Collectors;
 public class MovieService {
     private final MovieRepository movieRepository;
     private final FileStorageService fileStorageService;
+    private final DigiKatClient digiKatClient;
+
+    private final MovieProperties movieProperties;
 
     @Transactional(readOnly=true)
     public MovieListDTO findUserMovies(User user, int page, int limit, MovieFieldSort sortBy, Sort.Direction sortDirection){
@@ -83,12 +88,23 @@ public class MovieService {
     }
 
     private int calculateRanking(Movie movie) {
-        if(movie.getSize() < 200){
+        if(movie.getSize() < movieProperties.getSmallFileSize()){
             return 100;
         }
 
+        DigiKatMovieData digiKatMovieData = digiKatClient.getMovieData(movie.getTitle());
 
-        return 0;
+        int ranking = 0;
+        if (digiKatMovieData.isPolishProduction())
+            ranking += 200;
+
+        if (digiKatMovieData.isAvailableOnNetflix())
+            ranking -= 50;
+
+        if (digiKatMovieData.hasOutstandingUserRating())
+            ranking += 100;
+
+        return ranking;
     }
 
     private Movie getMovieByIdAndUser(Long movieId, User user){
