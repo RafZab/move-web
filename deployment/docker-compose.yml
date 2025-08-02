@@ -23,21 +23,24 @@ services:
     networks:
       - movie-library-network
 
-#  movie-library-service:
-#    container_name: movie-library-service
-#    restart: always
-#    build:
-#      context: ../src/movie-library-service
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      postgres-db:
-#        condition: service_healthy
-#    networks:
-#      - movie-library-network
-#    env_file:
-#      - .env
+  movie-library-service:
+    container_name: movie-library-service
+    restart: always
+    build:
+      context: ../src/movie-library-service
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/movie_library
+      - SPRING_DATASOURCE_USERNAME=movielibraryservice
+      - SPRING_DATASOURCE_PASSWORD=dev
+      - SPRING_PROFILES_ACTIVE=dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - movie-library-network
 
 volumes:
   db-data: {}
